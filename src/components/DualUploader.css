@@ -1,0 +1,115 @@
+.dual-uploader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.upload-panels {
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.uploader-panel {
+  flex: 1;
+  min-width: 300px;
+  max-width: 400px;
+  padding: 3rem 2rem;
+  border: 2px dashed var(--border-color);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.uploader-panel:hover {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
+.uploader-panel.has-file {
+  border-color: #22c55e;
+  border-style: solid;
+  background: rgba(34, 197, 94, 0.05);
+}
+
+.text-success {
+  color: #22c55e;
+}
+
+.file-input {
+  display: none;
+}
+
+.uploader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  height: 100%;
+}
+
+.icon-container {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1.5rem;
+  border-radius: 50%;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.uploader-panel:hover .icon-container {
+  color: var(--accent-color);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.uploader-panel.has-file .icon-container {
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.action-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px var(--accent-glow);
+}
+
+.btn-primary:disabled {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.helper-text {
+  font-size: 0.875rem;
+}
