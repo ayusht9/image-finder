@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { DualUploader } from './components/DualUploader';
+import { DualUploader, type SearchSettings } from './components/DualUploader';
 import { Workspace } from './components/Workspace';
 import { findImageInCanvas, waitForOpenCV, type MatchResult } from './utils/cv';
 import { FileSearch } from 'lucide-react';
@@ -16,6 +16,7 @@ function App() {
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
   const [matches, setMatches] = useState<MatchResult[]>([]);
+  const [searchSettings, setSearchSettings] = useState<SearchSettings | null>(null);
   
   // PDF state
   const [currentPageIndex, setCurrentPageIndex] = useState<number>(0);
@@ -36,7 +37,7 @@ function App() {
     return () => URL.revokeObjectURL(url);
   }, [targetImage]);
 
-  const handleStartSearch = async () => {
+  const handleStartSearch = async (settings: SearchSettings) => {
     if (!targetImage || !pdfDocument) return;
 
     try {
@@ -46,20 +47,30 @@ function App() {
       return;
     }
 
+    setSearchSettings(settings);
     setIsSearching(true);
     setIsProcessing(true);
     setProgress(0);
     setMatches([]);
-    setCurrentPageIndex(0); // Start rendering from page 0
+    
+    // Start from the user's requested start page (1-indexed to 0-indexed), or page 0
+    const startPageIndex = settings.startPage ? Math.max(0, settings.startPage - 1) : 0;
+    setCurrentPageIndex(startPageIndex);
   };
 
   // Called when PdfViewer finishes rendering a page to canvas
   const handlePageRendered = useCallback(async (canvas: HTMLCanvasElement, pageIndex: number) => {
-    if (!isProcessing || !targetImageElement) return;
+    if (!isProcessing || !targetImageElement || !searchSettings) return;
 
     try {
-      // Find matches on this page
-      const pageMatches = await findImageInCanvas(canvas, targetImageElement, pageIndex);
+      // Find matches on this page using advanced settings
+      const pageMatches = await findImageInCanvas(
+        canvas, 
+        targetImageElement, 
+        pageIndex,
+        searchSettings.threshold,
+        { scaleStrategy: searchSettings.scaleStrategy, colorMatch: searchSettings.colorMatch }
+      );
       
       if (pageMatches.length > 0) {
         setMatches(prev => [...prev, ...pageMatches]);
@@ -68,9 +79,14 @@ function App() {
       console.error("Error matching on page", pageIndex, error);
     }
 
-    // Move to next page if scanning, else finish
-    if (pageIndex < totalPages - 1) {
-      setProgress((pageIndex + 1) / totalPages);
+    const startIdx = searchSettings.startPage ? Math.max(0, searchSettings.startPage - 1) : 0;
+    const endIdx = searchSettings.endPage ? Math.min(totalPages - 1, searchSettings.endPage - 1) : totalPages - 1;
+    const totalToScan = Math.max(1, endIdx - startIdx + 1);
+    const scanned = pageIndex - startIdx + 1;
+
+    // Move to next page if scanning within bounds
+    if (pageIndex < endIdx) {
+      setProgress(scanned / totalToScan);
       setCurrentPageIndex(pageIndex + 1);
     } else {
       setProgress(1);
@@ -81,13 +97,17 @@ function App() {
         if (prevMatches.length > 0) {
           setCurrentPageIndex(prevMatches[0].pageIndex);
         } else {
-          // just go back to page 0 if nothing found
-          setCurrentPageIndex(0);
+          setCurrentPageIndex(startIdx);
         }
         return prevMatches;
       });
     }
-  }, [isProcessing, targetImageElement, totalPages]);
+  }, [isProcessing, targetImageElement, totalPages, searchSettings]);
+
+  const handleStopSearch = () => {
+    setIsProcessing(false);
+    setProgress(1);
+  };
 
   const resetState = () => {
     setTargetImage(null);
@@ -152,6 +172,7 @@ function App() {
           onPrevPage={() => setCurrentPageIndex(p => Math.max(0, p - 1))}
           onNextPage={() => setCurrentPageIndex(p => Math.min(totalPages - 1, p + 1))}
           onGoToPage={(pageIndex) => setCurrentPageIndex(pageIndex)}
+          onStopSearch={handleStopSearch}
         />
       )}
     </div>

@@ -167,3 +167,23 @@
   font-size: 0.875rem;
   color: #facc15;
 }
+
+.btn-stop {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.btn-stop:hover {
+  background: rgba(239, 68, 68, 0.4);
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
+}

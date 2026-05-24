@@ -14,6 +14,7 @@ interface SidebarProps {
   onPrevPage: () => void;
   onNextPage: () => void;
   onGoToPage: (pageIndex: number) => void;
+  onStopSearch: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -25,7 +26,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   totalPages,
   onPrevPage,
   onNextPage,
-  onGoToPage
+  onGoToPage,
+  onStopSearch
 }) => {
   return (
     <div className="sidebar-container glass-panel">
@@ -59,6 +61,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 style={{ width: `${Math.round(progress * 100)}%` }}
               ></div>
             </div>
+            <button className="btn-stop mt-2" onClick={onStopSearch}>
+              Stop Search
+            </button>
           </div>
         ) : (
           <div className="completed-state">

@@ -48,7 +48,8 @@ export const findImageInCanvas = async (
   sourceCanvas: HTMLCanvasElement,
   targetImageElement: HTMLImageElement,
   pageIndex: number,
-  threshold: number = 0.65
+  threshold: number = 0.65,
+  options: { scaleStrategy: string; colorMatch: boolean } = { scaleStrategy: 'balanced', colorMatch: false }
 ): Promise<MatchResult[]> => {
   await waitForOpenCV();
   const cv = window.cv;
@@ -62,21 +63,34 @@ export const findImageInCanvas = async (
     src = cv.imread(sourceCanvas);
     originalTempl = cv.imread(targetImageElement);
 
-    // Convert both to grayscale for simpler/faster matching
-    cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
-    cv.cvtColor(originalTempl, originalTempl, cv.COLOR_RGBA2GRAY, 0);
+    if (!options.colorMatch) {
+      // Convert both to grayscale for simpler/faster matching
+      cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+      cv.cvtColor(originalTempl, originalTempl, cv.COLOR_RGBA2GRAY, 0);
+    } else {
+      // For color matching, we still need to drop the alpha channel because TM_CCOEFF_NORMED
+      // doesn't handle RGBA vs RGB perfectly if alpha differs.
+      cv.cvtColor(src, src, cv.COLOR_RGBA2RGB, 0);
+      cv.cvtColor(originalTempl, originalTempl, cv.COLOR_RGBA2RGB, 0);
+    }
 
     let bestMaxVal = -1;
     let bestMatchPoint = null;
     let bestScale = 1;
 
     // Calculate the exact ratio of the target image to the source canvas
-    // This is critical for matching "full-page screenshots" perfectly
     const exactScale = Math.min(src.cols / originalTempl.cols, src.rows / originalTempl.rows);
 
-    // Multi-scale template matching 
-    const scales = new Set([0.3, 0.4, 0.6, 0.8, 1.0, 1.2, 1.5, exactScale, exactScale * 0.98]);
-    const sortedScales = Array.from(scales).sort((a, b) => a - b);
+    let scalesSet: Set<number>;
+    if (options.scaleStrategy === 'exact') {
+      scalesSet = new Set([1.0, exactScale]);
+    } else if (options.scaleStrategy === 'deep') {
+      scalesSet = new Set([0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.8, 2.0, 2.5, exactScale, exactScale * 0.98]);
+    } else { // balanced
+      scalesSet = new Set([0.3, 0.4, 0.6, 0.8, 1.0, 1.2, 1.5, exactScale, exactScale * 0.98]);
+    }
+    
+    const sortedScales = Array.from(scalesSet).sort((a, b) => a - b);
 
     for (const scale of sortedScales) {
       // Yield to the browser's event loop to prevent UI freezing

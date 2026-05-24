@@ -18,6 +18,7 @@ interface WorkspaceProps {
   onPrevPage: () => void;
   onNextPage: () => void;
   onGoToPage: (pageIndex: number) => void;
+  onStopSearch: () => void;
 }
 
 export const Workspace: React.FC<WorkspaceProps> = ({
@@ -33,7 +34,8 @@ export const Workspace: React.FC<WorkspaceProps> = ({
   setTotalPages,
   onPrevPage,
   onNextPage,
-  onGoToPage
+  onGoToPage,
+  onStopSearch
 }) => {
   return (
     <div className="workspace-container">
@@ -59,6 +61,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
           onPrevPage={onPrevPage}
           onNextPage={onNextPage}
           onGoToPage={onGoToPage}
+          onStopSearch={onStopSearch}
         />
       </div>
     </div>
