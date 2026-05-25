@@ -1,73 +1,65 @@
-# React + TypeScript + Vite
+# Image Finder
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Image Finder is a React-based tool that processes images and performs document-style searches to locate specific words. It extracts text and spatial coordinates from images, allowing users to highlight and find the exact locations of matched search terms.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Image Upload:** Upload images directly to the application.
+- **Word Search:** Search for specific words within the extracted text.
+- **Visual Highlighting:** Highlights the bounding boxes of the matched words on the image.
 
-## React Compiler
+## Getting Started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Prerequisites
 
-## Expanding the ESLint configuration
+- Node.js (v18 or higher)
+- npm
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Local Setup
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+2. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+3. Open your browser and navigate to `http://localhost:5173`.
+
+### Docker Setup
+
+You can also run the application using Docker. A multi-stage Dockerfile and a `docker-compose.yml` are provided for both development and production environments.
+
+#### Development with Docker Compose (Hot-Reloading)
+
+To start the development server with hot-reloading enabled:
+
+```bash
+docker-compose up --build
 ```
+The app will be available at `http://localhost:5173`.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+#### Production Build with Docker
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+To build and run the optimized production image:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+1. Build the Docker image:
+   ```bash
+   docker build --target production -t image-finder:prod .
+   ```
+
+2. Run the Docker container:
+   ```bash
+   docker run -p 8080:80 image-finder:prod
+   ```
+The app will be available at `http://localhost:8080`.
+
+## Tech Stack
+
+- React 19
+- TypeScript
+- Vite
+- Docker
